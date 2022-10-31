@@ -1,8 +1,6 @@
 pragma solidity ^0.5.16;
 
 contract Hostel {
-    ...
-}
     address payable tenant;
     address payable landlord;
     uint256 public no_of_rooms = 0;
@@ -49,28 +47,28 @@ contract Hostel {
     modifier onlyLandlord(uint256 _index) {
         require(
             msg.sender == Room_by_No[_index].landlord,
-            "Only landlord can access this"
+            "Только землевладелец может получить доступ к этому"
         );
         _;
     }
     modifier notLandLord(uint256 _index) {
         require(
             msg.sender != Room_by_No[_index].landlord,
-            "Only Tenant can access this"
+            "Только жилец может получить доступ к этому"
         );
         _;
     }
     modifier OnlyWhileVacant(uint256 _index) {
         require(
             Room_by_No[_index].vacant == true,
-            "Room is currently Occupied."
+            "Комната уже занята"
         );
         _;
     }
     modifier enoughRent(uint256 _index) {
         require(
             msg.value >= uint256(Room_by_No[_index].rent_per_month),
-            "Not enough Ether in your wallet"
+            "В кошельке недостаточно эфира"
         );
         _;
     }
@@ -81,14 +79,14 @@ contract Hostel {
                     uint256(Room_by_No[_index].rent_per_month) +
                         uint256(Room_by_No[_index].securityDeposit)
                 ),
-            "Not enough Ether in your wallet"
+            "Недостаточно эфира в кошельке"
         );
         _;
     }
     modifier sameTenant(uint256 _index) {
         require(
             msg.sender == Room_by_No[_index].currentTenant,
-            "No previous agreement found with you & landlord"
+            "Не найдено предыдущего договора"
         );
         _;
     }
@@ -96,19 +94,19 @@ contract Hostel {
         uint256 _AgreementNo = Room_by_No[_index].agreementid;
         uint256 time = RoomAgreement_by_No[_AgreementNo].timestamp +
             RoomAgreement_by_No[_AgreementNo].lockInPeriod;
-        require(now < time, "Agreement already Ended");
+        require(now < time, "Договор уже закончился");
         _;
     }
     modifier AgreementTimesUp(uint256 _index) {
         uint256 _AgreementNo = Room_by_No[_index].agreementid;
         uint256 time = RoomAgreement_by_No[_AgreementNo].timestamp +
             RoomAgreement_by_No[_AgreementNo].lockInPeriod;
-        require(now > time, "Time is left for contract to end");
+        require(now > time, "Время кончилось для заключения договора");
         _;
     }
     modifier RentTimesUp(uint256 _index) {
         uint256 time = Room_by_No[_index].timestamp + 30 days;
-        require(now >= time, "Time left to pay Rent");
+        require(now >= time, "Вышла время платить ренту");
         _;
     }
 
@@ -214,7 +212,7 @@ contract Hostel {
         require(msg.sender != address(0));
         require(
             Room_by_No[_index].vacant == false,
-            "Room is currently Occupied."
+            "Комната уже занята"
         );
         Room_by_No[_index].vacant = true;
         address payable _Tenant = Room_by_No[_index].currentTenant;
